@@ -15,7 +15,7 @@ Projekt obsahuje automatizované testy pomocí pytest:
 Testují se CRUD operace databáze.
 
 ## Technologie:
-- Python
+- python
 - MySQL
 - pytest
 
@@ -35,7 +35,7 @@ a task_manager_test pro testování programu.
 
 ### 4. Nastavení přístupového hesla
 Projekt využívá enviromentální proměnnou DB_PASSWORD. Pro připojení do databáze.
-Ve windows se na staví:
+V OS windows se na staví:
 ```bash
 setx DB_PASSWORD "Tvoje_heslo"
 ```
