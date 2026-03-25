@@ -5,10 +5,9 @@ Projekt vznikl jako součást Online Testing akademie (Engeto)
 ## Funkce
 - Přidání úkolu
 - Zobtazení úkolu
-- AKtualizace úkolu
+- Aktualizace úkolu
 - Odstanění úkolu
-- Ukládání dat dat do databáze (MySQL)
-- 
+
 ## Testování
 Projekt obsahuje automatizované testy pomocí pytest:
 - Pozitivní testy (správné vstupy)
