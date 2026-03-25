@@ -27,8 +27,9 @@ git clone https://github.com/PavlinaCp/task-manager-crud-testing.git
 cd task-manager-crud-testing
 ```
 ### 2. Instalace knihoven
+```bash
 pip install pytest mysql-connector-python
-
+```
 ### 3. Nastavení databáze
 Je potřeba mít běžící MySQL server a vytvořenou databázi task_manager - pro hlavní program
 a task_manager_test pro testování programu.
