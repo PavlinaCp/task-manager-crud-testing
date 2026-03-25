@@ -11,7 +11,7 @@ Projekt vznikl jako součást Online Testing akademie (Engeto)
 ## Testování
 Projekt obsahuje automatizované testy pomocí pytest:
 - Pozitivní testy (správné vstupy)
-- Negativní testy (Neplatné vstupy)
+- Negativní testy (neplatné vstupy)
 Testují se CRUD operace databáze.
 
 ## Technologie:
