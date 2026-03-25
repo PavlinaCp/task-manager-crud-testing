@@ -4,7 +4,7 @@ Projekt vznikl jako součást Online Testing akademie (Engeto)
 
 ## Funkce
 - Přidání úkolu
-- Zobtazení úkolu
+- Zobrazení úkolu
 - Aktualizace úkolu
 - Odstanění úkolu
 
