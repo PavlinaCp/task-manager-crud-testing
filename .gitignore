@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+*.pyo
+.tox/
+.vscode/
+.pytest_cache/
