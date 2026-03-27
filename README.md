@@ -27,29 +27,31 @@ cd task-manager-crud-testing
 ```
 ### 2. Instalace knihoven
 ```bash
-pip install pytest mysql-connector-python
+pip install -r requirements.txt
 ```
-### 3. Nastavení databáze
-Je potřeba mít běžící MySQL server a vytvořenou databázi task_manager - pro hlavní program
-a task_manager_test pro testování programu.
-
-### 4. Nastavení přístupového hesla
-Projekt využívá enviromentální proměnnou DB_PASSWORD. Pro připojení do databáze.
-V OS windows se nastaví:
+### 3. Nastavení souboru .env
+Vytvořte soubor `.env` v kořenové složce projektu a nastavte:
 ```bash
-setx DB_PASSWORD "Tvoje_heslo"
+DB_HOST=localhost                     #volitelné (default localhost)
+DB_USER=root                          #volitelné (default root)
+DB_PASSWORD=vaše_heslo                #povinné
+DB_PORT=3306                          #volitelné (default 3306)
+DB_NAME=task_manager                  #volitelné (default task_manager)
 ```
-### 5. Spuštění aplikace
+
+### 3. Spuštění aplikace
 ```bash
 python main.py
 ```
-### 5. Spuštění testů
+### 4. Spuštění testů
 ```bash
 pytest
 ```
-## Poznámka
-Po provedení testů se obsah
-testovací databáze task_manager_test sám smaže.
+## Poznámky
+- Před spuštěním projektu je nutné mít nainstalovaný a spuštěný MySQL server.
+- Databáze a tabulka 'ukoly' se při spuštění automaticky vytvoří, pokud ještě neexistují.
+- Po provedení testů se obsah testovací databáze task_manager_test automaticky smaže.
+  
 
 
 
