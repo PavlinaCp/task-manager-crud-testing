@@ -1,3 +1,9 @@
+"""
+projekt_2.py: druhý projekt do Engeto Online Testing Akademie
+Obsahuje funkce pro operace s databází.
+author: Pavlína Čepcová
+email: cepcovap@gmail.com
+"""
 import mysql.connector
 import os
 from datetime import date

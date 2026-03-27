@@ -1,5 +1,6 @@
 """
 projekt_2.py: druhý projekt do Engeto Online Testing Akademie
+Obsahuje uživatelské vstupy, jejich validaci a hlavní část programu.
 author: Pavlína Čepcová
 email: cepcovap@gmail.com
 """
