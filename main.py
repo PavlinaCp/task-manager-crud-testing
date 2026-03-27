@@ -4,58 +4,11 @@ author: Pavlína Čepcová
 email: cepcovap@gmail.com
 """
 import mysql.connector
-import os
 from datetime import date
-
-def pripojeni_db(database = "task_manager") -> tuple[any,any]:
-    """
-    Naváže spojení s databází. Pokud spojení selže 
-    funkce vypíše chybovou hlášku a vrátí [None,None].
-    Returns: 
-        tuple: (conn, cursor) - úspěšné připojení
-        tuple: (None, None) - pokud připojení selže
-    """
-    try:
-        conn = mysql.connector.connect(
-            host = "localhost",
-            user = "root",
-            password = os.getenv("DB_PASSWORD"),
-            database = database
-        )
-        cursor = conn.cursor()
-        return conn, cursor
-        
-    except mysql.connector.Error as Err:
-        print(f" Nepodařilo se připojit k databázi: {Err}")
-        return None, None
-
-def vytvoreni_tabulky():
-    """
-    Vytvoří tabulku 'ukoly' v databázi - pokud již neexistuje. 
-    Vypíše chybu, pokud pokus o vytvoření tabulky selže.
-    """
-    conn, cursor = pripojeni_db()
-    if conn is None:
-        return
-    else:
-        print("Připojeno k databázi..")
-
-    try:
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS ukoly (
-                   id INT AUTO_INCREMENT PRIMARY KEY,
-                   Nazev VARCHAR(100),
-                   Popis TEXT,
-                   Stav VARCHAR(50) DEFAULT 'Nezahájeno',
-                   Datum DATE
-        )
-        """)
-        print("Tabulka vytvořena..")
-        print()
-    except mysql.connector.Error as Err:
-        print(f"Chyba při vytvoření tabulky: {Err}")
-    finally:
-        conn.close()
+from db import (
+    pripojeni_db, vytvoreni_tabulky, pridat_ukol, zobrazit_ukoly,
+    aktualizovat_ukol, odstranit_ukol, vytvoreni_databaze
+)
 
 def hlavni_menu() -> int:
     """
@@ -87,7 +40,7 @@ def hlavni_menu() -> int:
             continue
         return zvoleno
     
-def pridat_ukol_user_input() -> tuple[str, str, date]:
+def pridat_ukol_user_input() -> tuple[str, str]:
     """
     Funkce si vyžádá dva vstupy od uživatele - "nazev" a "popis"
     úkolu. Oba vstupy validuje. Nakonec připraví proměnou "dnes"
@@ -110,27 +63,7 @@ def pridat_ukol_user_input() -> tuple[str, str, date]:
             print("Nezadali jste popis úkolu")
         else:
             break
-    dnes = date.today()
-    return nazev, popis, dnes
-
-def pridat_ukol(nazev:str, popis:str, dnes:date, database = "task_manager") -> None:
-    """
-    Uloží nový úkol do databáze.
-    Funkce příjmá název, popis a datum úkolu jako 
-    argumenty a vytvoří nový záznam v databázi.
-    """
-    conn, cursor = pripojeni_db(database)
-    if conn is None:
-        return 
-    try:
-        cursor.execute("INSERT INTO ukoly (Nazev, Popis, Datum) VALUES (%s, %s, %s)", 
-                       (nazev, popis, dnes))
-        conn.commit()
-        print(f"Úkol {nazev} byl přidán")
-    except mysql.connector.Error:
-        raise
-    finally:
-        conn.close()
+    return nazev, popis
 
 def zobrazit_ukoly_user_input() -> int:
     """
@@ -157,53 +90,6 @@ def zobrazit_ukoly_user_input() -> int:
             return volba
             
 
-def zobrazit_ukoly(volba:int):
-    """
-    Funkce zobrazí úkoly z databáze.
-    Přijímá argument volba, na jehož základě filtruje
-    zobrazení úkolů na stav: Nezahájeno, Probíhá nebo
-    zobrazí všechny úkoly. Součástí funkce je připojení
-    k databázi.
-    """
-    conn, cursor = pripojeni_db()
-    if conn is None:
-        return
-    try:
-        if volba == 1:
-            cursor.execute("SELECT * FROM ukoly")
-            rows = cursor.fetchall()
-            if len(rows) == 0:
-                print("Žádné úkoly nenalezeny")
-            else:
-                print()
-                print("Všechny úkoly")
-                for row in rows:
-                    print(f"ID: {row[0]} - Název: {row[1]} - Popis: {row[2]} - Stav: {row[3]} - Datum: {row[4]}")
-        if volba == 2:
-            cursor.execute("SELECT * FROM ukoly WHERE Stav = 'Nezahájeno'")
-            rows = cursor.fetchall()
-            if len(rows) == 0:
-                print("Žádné úkoly nenalezeny")
-            else:
-                print()
-                print("Nezahájené úkoly")
-                for row in rows:
-                    print(f"ID: {row[0]} - Název: {row[1]} - Popis: {row[2]} - Stav: {row[3]} - Datum: {row[4]}")
-        if volba == 3:
-            cursor.execute("SELECT * FROM ukoly WHERE Stav = 'Probíhá'")
-            rows = cursor.fetchall()
-            if len(rows) == 0:
-                print("Žádné úkoly nenalezeny")
-            else:
-                print()
-                print("Probíhající úkoly")
-                for row in rows:
-                    print(f"ID: {row[0]} - Název: {row[1]} - Popis: {row[2]} - Stav: {row[3]} - Datum: {row[4]}")
-    except mysql.connector.Error as Err:
-        raise
-    finally:
-        conn.close()
-
 def aktualizovat_ukol_user_input(database="task_manager") -> tuple[int, str]:
     """
     Funkce si nejdříve vyžádá od uživatele ID úkolu,
@@ -218,6 +104,9 @@ def aktualizovat_ukol_user_input(database="task_manager") -> tuple[int, str]:
     conn, cursor = pripojeni_db(database)
     if conn is None:
         return
+    zobrazit_ukoly(1)
+    print("-" * 100)
+    print()
     try:
         while True: 
             volba_ID = input("Napiste ID úkolu k aktualizaci: ")
@@ -231,8 +120,8 @@ def aktualizovat_ukol_user_input(database="task_manager") -> tuple[int, str]:
                 if existujici_ID is None:
                     print("Úkol pod tímto ID neexistuje.")
                     continue
-            except mysql.connector.Error as Error: 
-                print(f"Chyba při selektu úkolu ve funkci aktualizovat_ukol_user_input: {Error}")
+            except mysql.connector.Error: 
+                raise
             volba_stav = input('Změna stavu úkolu. Zvolte 1 - "Probíhá" nebo 2 - "Hotovo": ')
             if not volba_stav.isdigit():
                 print("Spatna volba")
@@ -250,22 +139,6 @@ def aktualizovat_ukol_user_input(database="task_manager") -> tuple[int, str]:
         conn.close()
         
 
-def aktualizovat_ukol(volba_ID:int, volba_stav:str, database = "task_manager"):
-    """
-    Funkce aktualizuje stav úkolu v databázi podle ID úkolu.
-    """
-    conn, cursor = pripojeni_db(database)
-    if conn is None:
-        return
-    try:
-        cursor.execute("UPDATE ukoly SET Stav = %s WHERE ID = %s", (volba_stav, volba_ID))
-        conn.commit()
-        print(f"Úkol s ID: {volba_ID} byl úspěšně aktualizován")
-    except mysql.connector.Error: 
-        raise
-    finally:
-        conn.close()
-
 def odstranit_ukol_user_input() -> int:
     """
     Funkce se dotáže uživatele na ID úkolu, ověří jeho existenci 
@@ -278,6 +151,9 @@ def odstranit_ukol_user_input() -> int:
     conn, cursor = pripojeni_db()
     if conn is None:
         return
+    zobrazit_ukoly(1)
+    print("-" * 100)
+    print()
     try:
         while True: 
             volba_ID = input("Napiste ID úkolu který chcete odstranit: ")
@@ -291,9 +167,8 @@ def odstranit_ukol_user_input() -> int:
                 if existujici_ID is None:
                     print("Úkol pod tímto ID neexistuje.")
                     continue
-            except mysql.connector.Error as Error:
-                print(f"Chyba při selektu úkolu ve funkci odstranit_ukol: {Error}")
-                continue
+            except mysql.connector.Error:
+                raise
             print(f"Opravdu chcete úkol s ID: {volba_ID} vymazat?" )
             print()
             potvrzeni = input("Zvolte: ANO, smazat - 1 nebo NE, ponechat - 2: ")
@@ -312,74 +187,41 @@ def odstranit_ukol_user_input() -> int:
     finally: 
         conn.close()
     
-def odstranit_ukol(volba_ID:int, database = "task_manager") -> bool:
-    """
-    Funkce odstraní úkol z databáze podle ID. Vrátí hodnotu False, 
-    pokud v databázi nebyl smazán záznam. True pokud v databázi došlo 
-    k smazání úkolu. Součástí funkce je připojení k databázi.
-        Returns:
-            bool: False (Záznam nesmazán)
-            bool: True (Záznam smazán)
-    """
-    conn, cursor = pripojeni_db(database)
-    if conn is None:
-        return
-    try:
-        cursor.execute("DELETE FROM ukoly WHERE ID = %s",(volba_ID,))
-        conn.commit()
-        print(f"Úkol s ID: {volba_ID} byl úspěšně smazán")
-        if cursor.rowcount == 0:
-            return False
-        else:
-            return True
-    except mysql.connector.Error: 
-        raise
-    finally:
-        conn.close()
 
 def hlavni_program():
+    vytvoreni_databaze()
     vytvoreni_tabulky() 
     while True:
         volba = hlavni_menu()
         print("-" * 100)
         if volba == 1:
-            try:
-                nazev, popis, dnes = pridat_ukol_user_input()
-                pridat_ukol(nazev, popis, dnes)
-            except mysql.connector.Error as Err:
-                print(f"Chyba při vložení úkolu: {Err}")
+            dnes = date.today()
+            nazev, popis = pridat_ukol_user_input()
+            pridat_ukol(nazev, popis, dnes)
             print("-" * 100)
         elif volba == 2:
-            try:
-                volba = zobrazit_ukoly_user_input()
-                zobrazit_ukoly(volba)
-            except mysql.connector.Error as Err:
-                print(f"Chyba při zobrazení úkolu: {Err}")
+            volba = zobrazit_ukoly_user_input()
+            zobrazit_ukoly(volba)
             print("-" * 100)
         elif volba == 3:
-            try:
-                zobrazit_ukoly(1)
-                print("-" * 100)
-                volba_ID, volba_stav = aktualizovat_ukol_user_input()
-                aktualizovat_ukol(volba_ID, volba_stav)
-            except mysql.connector.Error as Err:
-                print(f"Chyba při aktualizaci úkolu: {Err}")
+            volba_ID, volba_stav = aktualizovat_ukol_user_input()
+            aktualizovat_ukol(volba_ID, volba_stav)
             print("-" * 100)
         elif volba == 4:
-            try:
-                zobrazit_ukoly(1)
-                print("-" * 100)
-                volba_ID = odstranit_ukol_user_input()
-                if volba_ID is not None:
-                    odstranit_ukol(volba_ID)
-            except mysql.connector.Error as Err:
-                print(f"Chyba při odstranění úkolu: {Err}")
+            volba_ID = odstranit_ukol_user_input()
+            if volba_ID is not None:
+                odstranit_ukol(volba_ID)
             print("-" * 100)
         else:
             break
 
 if __name__ == "__main__":
-    hlavni_program()
+    try:
+        hlavni_program()
+    except ValueError as e:
+        print(f"Chyba konfigurace: {e}")
+    except mysql.connector.Error as e:
+        print(f"Chyba databáze: {e}")
 
 
 

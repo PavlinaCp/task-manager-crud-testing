@@ -4,3 +4,4 @@ __pycache__/
 .tox/
 .vscode/
 .pytest_cache/
+.env
