@@ -4,7 +4,14 @@ from datetime import date
 from dotenv import load_dotenv
 load_dotenv()
 
-def vytvoreni_databaze(database = None):
+def vytvoreni_databaze(database = None) -> None:
+    """
+    Funkce vytvoří databázi pokud již neexistuje.
+    Využívá konfigurační hodnoty z environment proměnných (soubor .env)
+    pokud není parametr 'database' ručně zadán.
+    Vyžaduje mít minimálně nastavenou hodnotu DB_PASSWORD v souboru .env,
+    jinak vyvolá výjimku.
+    """
     try:
         conn_params = {
                 "host": os.getenv("DB_HOST", "localhost"),
@@ -27,11 +34,12 @@ def vytvoreni_databaze(database = None):
 
 def pripojeni_db(database = None ) -> tuple[any,any]:
     """  
-    Naváže spojení s databází. Pokud spojení selže 
-    funkce vypíše chybovou hlášku a vrátí [None,None].
+    Naváže spojení s databází. Využívá konfigurační hodnoty 
+    z environment proměnných (soubor .env) pokud není parametr 
+    'database' ručně zadán. Pokud chybí DB_PASSWORD v souboru .env,
+    nebo se nenaváže spojení, vyvolá výjimku.
     Returns: 
         tuple: (conn, cursor) - úspěšné připojení
-        tuple: (None, None) - pokud připojení selže
     """
     try:
         conn_params = {
@@ -54,10 +62,12 @@ def pripojeni_db(database = None ) -> tuple[any,any]:
     except mysql.connector.Error as Err:
         raise
 
-def vytvoreni_tabulky(database=None):
+def vytvoreni_tabulky(database=None) -> None:
     """
     Vytvoří tabulku 'ukoly' v databázi - pokud již neexistuje. 
-    Vypíše chybu, pokud pokus o vytvoření tabulky selže.
+    Pokud vytvoření tabulky selže, vyvolá výjimku.
+    Pokud není parametr 'database' zadán, použije se databáze 
+    z konfigurace.
     """
     conn, cursor = pripojeni_db(database)
     print("Připojeno k databázi..")
@@ -79,11 +89,13 @@ def vytvoreni_tabulky(database=None):
     finally:
         conn.close()
 
-def pridat_ukol(nazev:str, popis:str, dnes:date, database = "task_manager") -> None:
+def pridat_ukol(nazev:str, popis:str, dnes:date, database = None) -> None:
     """
     Uloží nový úkol do databáze.
     Funkce příjmá název, popis a datum úkolu jako 
-    argumenty a vytvoří nový záznam v databázi.
+    parametry a vytvoří nový záznam v databázi.
+    Pokud není parametr 'database' zadán použije se databáze 
+    z konfigurace. Pokud přidání úkolu selže, vyvolá výjimku.
     """
     if not nazev.strip():
         raise ValueError ("Název úkolu nesmí být prázdný")
@@ -98,13 +110,17 @@ def pridat_ukol(nazev:str, popis:str, dnes:date, database = "task_manager") -> N
     finally:
         conn.close()
 
-def zobrazit_ukoly(volba:int, database = "task_manager"):
+def zobrazit_ukoly(volba:int, database = None) -> list[tuple]:
     """
     Funkce zobrazí úkoly z databáze.
-    Přijímá argument volba, na jehož základě filtruje
+    Přijímá parametr volba, na jehož základě filtruje
     zobrazení úkolů na stav: Nezahájeno, Probíhá nebo
     zobrazí všechny úkoly. Součástí funkce je připojení
-    k databázi.
+    k databázi. Pokud není parametr 'database' zadán 
+    použije se databáze z konfigurace. Pokud dotaz selže, 
+    vyvolá výjimku. Funkce vrací zobrazené výsledky.
+        Retunrs:
+            list[tuple]: rows
     """
     conn, cursor = pripojeni_db(database)
 
@@ -124,11 +140,11 @@ def zobrazit_ukoly(volba:int, database = "task_manager"):
             print("Žádné úkoly nenalezeny")
         else:
             if volba == 1:
-                print("\nVšechny úkoly")
+                print("šechny úkoly")
             elif volba == 2:
-                print("\nNezahájené úkoly")
+                print("Nezahájené úkoly")
             elif volba == 3:
-                print("\nProbíhající úkoly")
+                print("Probíhající úkoly")
 
             for row in rows:
                 print(f"ID: {row[0]} - Název: {row[1]} - Popis: {row[2]} - Stav: {row[3]} - Datum: {row[4]}")
@@ -143,9 +159,12 @@ def zobrazit_ukoly(volba:int, database = "task_manager"):
         conn.close()
 
 
-def aktualizovat_ukol(volba_ID:int, volba_stav:str, database = "task_manager"):
+def aktualizovat_ukol(volba_ID:int, volba_stav:str, database = None) -> None:
     """
     Funkce aktualizuje stav úkolu v databázi podle ID úkolu.
+    Součástí funkce je připojení k databázi. 
+    Pokud není parametr 'database' zadán  použije se databáze z konfigurace. 
+    Pokud aktualizace úkolu selže, vyvolá výjimku.
     """
     if not volba_ID or not volba_stav:
         raise ValueError("ID a volba změny stavu musí být vyplněny")
@@ -159,11 +178,13 @@ def aktualizovat_ukol(volba_ID:int, volba_stav:str, database = "task_manager"):
     finally:
         conn.close()
 
-def odstranit_ukol(volba_ID:int, database = "task_manager") -> bool:
+def odstranit_ukol(volba_ID:int, database = None) -> bool:
     """
     Funkce odstraní úkol z databáze podle ID. Vrátí hodnotu False, 
     pokud v databázi nebyl smazán záznam. True pokud v databázi došlo 
     k smazání úkolu. Součástí funkce je připojení k databázi.
+    Pokud není parametr 'database' zadán  použije se databáze z konfigurace. 
+    Pokud smazání úkolu selže, vyvolá výjimku.
         Returns:
             bool: False (Záznam nesmazán)
             bool: True (Záznam smazán)

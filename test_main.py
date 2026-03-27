@@ -34,7 +34,7 @@ def db_setup():
 
 #Test funkce pridat_ukol()
 #Pozitivni test - Pokus o správné vložení nového úkolu do databaze 
-#Negativni test - Pokus o vložení prázdného vstupu do pole Nazev
+#Negativni test - Pokus o vložení prázdného vstupu do pole nazev
 def test_pridat_ukol_validni(db_setup):
     _, cursor = db_setup
     pridat_ukol("Nový úkol", "Popis nového úkolu", date(2025, 1, 1), 
@@ -57,6 +57,8 @@ def test_pridat_ukol_nevalidni(db_setup):
 #Test funkce zobrazit_ukoly()
 #Pozitivní test - Pokus o správné zobrazení úkolů se stavem "probíhá" (volba 3).
 #Negativní test - Pokus o zobrazení záznamů při použití neplatné volby filtru zobrazení.
+#Fixture db_setup je jako parametr v test_zobrazit_ukoly_nevalidni(db_setup)
+#je použita aby zajistila setup a teardown testu.
 def test_zobrazit_ukoly_validni(db_setup):
     _, cursor = db_setup  
     pridat_ukol("Nový úkol", "Popis nového úkolu", date(2025, 1, 1), 

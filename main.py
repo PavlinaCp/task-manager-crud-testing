@@ -118,7 +118,7 @@ def aktualizovat_ukol_user_input(database="task_manager") -> tuple[int, str]:
                 cursor.execute("SELECT * FROM ukoly WHERE ID = %s", (volba_ID,))
                 existujici_ID = cursor.fetchone()
                 if existujici_ID is None:
-                    print("Úkol pod tímto ID neexistuje.")
+                    print("Úkol pod tímto ID neexistuje.") 
                     continue
             except mysql.connector.Error: 
                 raise
@@ -139,7 +139,7 @@ def aktualizovat_ukol_user_input(database="task_manager") -> tuple[int, str]:
         conn.close()
         
 
-def odstranit_ukol_user_input() -> int:
+def odstranit_ukol_user_input(database="task_manager") -> int:
     """
     Funkce se dotáže uživatele na ID úkolu, ověří jeho existenci 
     a vrátí ID pro smazání, pokud uživatel potvrdí. 
@@ -148,7 +148,7 @@ def odstranit_ukol_user_input() -> int:
         Returns:
             int: volba_ID
     """
-    conn, cursor = pripojeni_db()
+    conn, cursor = pripojeni_db(database)
     if conn is None:
         return
     zobrazit_ukoly(1)
