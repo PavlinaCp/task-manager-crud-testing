@@ -7,8 +7,6 @@ author: Pavlína Čepcová
 email: cepcovap@gmail.com
 """
 import pytest
-import mysql.connector
-import os
 from datetime import date
 from db import (
     pridat_ukol, aktualizovat_ukol, odstranit_ukol, pripojeni_db,
