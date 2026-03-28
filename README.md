@@ -39,11 +39,11 @@ DB_PORT=3306                          #volitelné (default 3306)
 DB_NAME=task_manager                  #volitelné (default task_manager)
 ```
 
-### 3. Spuštění aplikace
+### 4. Spuštění aplikace
 ```bash
 python main.py
 ```
-### 4. Spuštění testů
+### 5. Spuštění testů
 ```bash
 pytest
 ```
