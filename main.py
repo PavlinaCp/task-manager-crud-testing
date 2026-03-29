@@ -91,7 +91,7 @@ def zobrazit_ukoly_user_input() -> int:
             return volba
             
 
-def aktualizovat_ukol_user_input(database="task_manager") -> tuple[int, str]:
+def aktualizovat_ukol_user_input(database=None) -> tuple[int, str]:
     """
     Funkce si nejdříve vyžádá od uživatele ID úkolu,
     zjistí v databázi zda úkol pod zvoleným ID existuje.
@@ -140,7 +140,7 @@ def aktualizovat_ukol_user_input(database="task_manager") -> tuple[int, str]:
         conn.close()
         
 
-def odstranit_ukol_user_input(database="task_manager") -> int:
+def odstranit_ukol_user_input(database=None) -> int:
     """
     Funkce se dotáže uživatele na ID úkolu, ověří jeho existenci 
     a vrátí ID pro smazání, pokud uživatel potvrdí. 

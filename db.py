@@ -65,7 +65,7 @@ def pripojeni_db(database = None ) -> tuple[any,any]:
         cursor = conn.cursor()
         return conn, cursor
         
-    except mysql.connector.Error as Err:
+    except mysql.connector.Error:
         raise
 
 def vytvoreni_tabulky(database=None) -> None:
@@ -146,7 +146,7 @@ def zobrazit_ukoly(volba:int, database = None) -> list[tuple]:
             print("Žádné úkoly nenalezeny")
         else:
             if volba == 1:
-                print("šechny úkoly")
+                print("Všechny úkoly")
             elif volba == 2:
                 print("Nezahájené úkoly")
             elif volba == 3:

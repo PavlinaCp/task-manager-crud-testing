@@ -65,7 +65,8 @@ def test_zobrazit_ukoly_validni(db_setup):
     ukol_id = cursor.fetchone()[0]
     aktualizovat_ukol(ukol_id,"Probíhá",database="task_manager_test")
     zobrazeni = zobrazit_ukoly(3, database="task_manager_test")
-    print(zobrazeni)
+    assert zobrazeni, "Žádné úkoly se nezobrazily"
+    assert zobrazeni[0][3] == "Probíhá", "filtrování zobrazení úkolů není správné"
 
 def test_zobrazit_ukoly_nevalidni(db_setup):
     with pytest.raises(ValueError):
